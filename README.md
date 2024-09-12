@@ -1,6 +1,8 @@
 
 # Advertising Response Curve Generator
 
+![header](header.jpg)
+
 This Streamlit app generates response curves for different advertising channels using a diminishing returns model and allows users to visualize and download the results as CSV files. The app processes a CSV file containing advertising spend data and a target variable, then generates response curves for each channel. This was created as an internal project that needed marketing response curves to model and optimize marketing budgets.
 
 ## Features
