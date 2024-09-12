@@ -96,9 +96,7 @@ Dummy data can be found [here](Advertising_Weekly_Dates.csv)
 5. **Fit the Diminishing Returns Model**:
    - For each channel, apply a **logarithmic diminishing returns model**:
 
-     \[
-     f(x) = a \cdot \log(1 + b \cdot x)
-     \]
+     \[ f(x) = a \cdot \log(1 + b \cdot x) \]
 
      - Estimate the parameters \( a \) and \( b \) using curve fitting, which shapes the curve to reflect diminishing returns as spend increases.
 
