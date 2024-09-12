@@ -73,6 +73,8 @@ date,s_tv,s_radio,s_newspaper,target
 ...
 ```
 
+Dummy data can be found [here](Advertising_Weekly_Dates.csv)
+
 ## Customization
 
 - **Logo**: You can customize the logo displayed at the top by replacing the `spark_logo.png` file with your own logo file.
