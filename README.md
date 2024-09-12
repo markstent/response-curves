@@ -26,7 +26,7 @@ You can download and install Python from [here](https://www.python.org/downloads
 1. **Clone the repository or download the app files**:
    - Place the following files in a folder:
      - `responsecurve.py` (the main Python script for the Streamlit app)
-     - `spark_logo.png` (your custom logo file)
+     - `spark-logo.png` (your custom logo file)
 
 2. **Install the required Python packages**:
    - Open your terminal or command prompt and navigate to the folder where `responsecurve.py` is located.
@@ -77,8 +77,33 @@ Dummy data can be found [here](Advertising_Weekly_Dates.csv)
 
 ## Customization
 
-- **Logo**: You can customize the logo displayed at the top by replacing the `spark_logo.png` file with your own logo file.
-- **Footer**: The app displays "Developed by Mark Stent" at the bottom. You can change this message or remove it by modifying the relevant section in `app.py`.
+- **Logo**: You can customize the logo displayed at the top by replacing the `spark-logo.png` file with your own logo file.
+- **Footer**: The app displays "Developed by Mark Stent" at the bottom. You can change this message or remove it by modifying the relevant section in `responsecurve.py`.
+
+## Attribution Methodology and Curve Generation
+
+2. **Multivariate Regression for Attribution**:
+   - Perform a **multivariate linear regression** using advertising spend columns (`s_` columns) as independent variables and the `target` column as the dependent variable.
+   - The regression outputs **coefficients** for each channel, representing the contribution of each channel to the target variable.
+
+3. **Scaling by Coefficients**:
+   - Each channel's contribution to the target is **scaled** by its respective regression coefficient, ensuring the target variable's sensitivity to each channel's spend is properly adjusted.
+
+4. **Define Common X-Range (Advertising Spend)**:
+   - Establish a **common x-range** (spend range) from 0 to the maximum observed spend across all channels.
+   - This ensures all channels' response curves are calculated over a consistent range of spend values.
+
+5. **Fit the Diminishing Returns Model**:
+   - For each channel, apply a **logarithmic diminishing returns model**:
+
+     \[
+     f(x) = a \cdot \log(1 + b \cdot x)
+     \]
+
+     - Estimate the parameters \( a \) and \( b \) using curve fitting, which shapes the curve to reflect diminishing returns as spend increases.
+
+6. **Generate Predicted Target Values**:
+   - Use the fitted model to compute **predicted target values** for each channel over the common x-range (spend values), showing how the target variable (e.g., sales) changes with increasing spend for each channel.
 
 ## License
 
