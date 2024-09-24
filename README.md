@@ -3,14 +3,15 @@
 
 ![header](header.jpg)
 
-This Streamlit app generates response curves for different advertising channels using a diminishing returns model and allows users to visualize and download the results as CSV files. The app processes a CSV file containing advertising spend data and a target variable, then generates response curves for each channel. This was created as an internal project that needed marketing response curves to model and optimize marketing budgets.
+This Streamlit app generates response curves for different advertising channels using a diminishing returns model and allows users to visualize and download the results as CSV files. The app now includes an Adstock model to account for the carryover effects of advertising spend across time, allowing users to fine-tune the Adstock decay rate for each channel. This was created as an internal project that needed marketing response curves to model and optimize marketing budgets.
 
 ## Features
 
-- Upload a CSV file with advertising spend data for multiple channels.
-- Visualize the response curves for each channel based on a diminishing returns model.
-- Download a combined CSV file containing the response curves data.
-- Customizable logo and footer with attribution.
+ - Upload a CSV file with advertising spend data for multiple channels.
+ - Adjust Adstock decay rates for each channel using sliders.
+ - Visualize the response curves for each channel based on a diminishing returns model.
+ - Download a combined CSV file containing the response curves data.
+ - Customizable logo and footer with attribution.
 
 ## Prerequisites
 
@@ -80,7 +81,16 @@ Dummy data can be found [here](Advertising_Weekly_Dates.csv)
 - **Logo**: You can customize the logo displayed at the top by replacing the `spark-logo.png` file with your own logo file.
 - **Footer**: The app displays "Developed by Mark Stent" at the bottom. You can change this message or remove it by modifying the relevant section in `responsecurve.py`.
 
+## Adstock Parameters
+
+- The app allows users to adjust the Adstock decay rate for each channel using sliders. Adstock models the carryover effect of - advertising, simulating how advertising in one period can affect future periods.
+- Each channel has a default decay rate of 0.5, which can be adjusted between 0.0 (no carryover) to 1.0 (full carryover).
+
 ## Attribution Methodology and Curve Generation
+
+1. **Adstock Transformation:
+
+- For each channel, apply an Adstock transformation using the decay rate set by the user. This models the carryover effect of advertising spend over time.
 
 2. **Multivariate Regression for Attribution**:
    - Perform a **multivariate linear regression** using advertising spend columns (`s_` columns) as independent variables and the `target` column as the dependent variable.
