@@ -12,7 +12,15 @@ class ResponseCurveApp:
         self.curve_points = None
         self.x_range = None
 
-    # Diminishing returns function
+    # Adstock transformation function
+    @staticmethod
+    def apply_adstock(spend, decay_rate):
+        adstock_spend = np.zeros_like(spend)
+        for t in range(1, len(spend)):
+            adstock_spend[t] = spend[t] + decay_rate * adstock_spend[t - 1]
+        return adstock_spend
+
+    # Diminishing returns function (modified for adstock-adjusted spend)
     @staticmethod
     def diminishing_returns(x, a, b):
         return a * np.log(1 + b * x)
@@ -40,8 +48,8 @@ class ResponseCurveApp:
             st.error(f"Error loading data: {e}")
             return False
 
-    # Function to generate response curve points for each channel
-    def generate_response_curves(self):
+    # Function to generate response curve points for each channel, incorporating adstock
+    def generate_response_curves(self, decay_rates):
         channel_columns = [col for col in self.df.columns if col.startswith('s_')]
         y = self.df['target']
         X = self.df[channel_columns]
@@ -61,10 +69,14 @@ class ResponseCurveApp:
         # For each channel, compute response curve points
         for i, channel in enumerate(channel_columns):
             X_channel = self.df[channel].values
+
+            # Apply Adstock transformation
+            adstock_spend = self.apply_adstock(X_channel, decay_rates[channel])
+
             coefficient = coefficients[i]
             
-            # Fit the diminishing returns model based on the scaled values
-            params, _ = curve_fit(self.diminishing_returns, X_channel, y * coefficient, maxfev=5000)
+            # Fit the diminishing returns model based on the adstock-adjusted values
+            params, _ = curve_fit(self.diminishing_returns, adstock_spend, y * coefficient, maxfev=5000)
             
             # Generate predicted target using the scaled response and the common x_range
             y_pred = self.diminishing_returns(self.x_range, *params)
@@ -85,7 +97,7 @@ class ResponseCurveApp:
         for channel, points in self.curve_points.items():
             plt.plot(points['spend'], points[f'{channel}_predicted_target'], label=channel)
 
-        plt.title('Response Curves for All Advertising Channels (with Attribution)')
+        plt.title('Response Curves for All Advertising Channels (with Attribution and Adstock)')
         plt.xlabel('Spend')
         plt.ylabel('Predicted Target')
         plt.legend()
@@ -133,11 +145,11 @@ class StreamlitApp:
         # Display the logo
         st.image("spark-logo.png", width=150)  # Assuming the logo is in the same directory
 
-        st.title("Advertising Response Curve Generator")
+        st.title("Advertising Response Curve Generator (with Adstock)")
 
         # Add a description of what the app does
         st.markdown("""
-        This app generates response curves for different advertising channels using diminishing returns and allows you to visualize and download the results. 
+        This app generates response curves for different advertising channels using diminishing returns and allows you to visualize and download the results. It also incorporates Adstock for carryover effects. 
 
         **Expected CSV format**:
         - Columns must include:
@@ -147,12 +159,20 @@ class StreamlitApp:
 
         # File upload
         uploaded_file = st.file_uploader("Upload a CSV file", type=["csv"])
-        
+
         if uploaded_file is not None:
             # Load and validate data
             if self.response_curve_app.load_data(uploaded_file):
-                # Generate response curves
-                self.response_curve_app.generate_response_curves()
+                channel_columns = [col for col in self.response_curve_app.df.columns if col.startswith('s_')]
+                
+                # Set adstock decay rates for each channel in the interface dynamically
+                decay_rates = {}
+                st.write("Adstock Parameters:")
+                for channel in channel_columns:
+                    decay_rates[channel] = st.slider(f"Adstock Decay Rate for {channel}", 0.0, 1.0, 0.5)  # Default decay rate is 0.5
+                
+                # Generate response curves using the selected adstock decay rates
+                self.response_curve_app.generate_response_curves(decay_rates)
 
                 # Visualize all curves on a single graph
                 st.write("Response Curves:")
